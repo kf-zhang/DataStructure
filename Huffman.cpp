@@ -95,9 +95,10 @@ class HuffmanTree
             }
         }
 };
-int main()
-{
-    HuffmanTree<char> s(7);
-    s.show();
-    s.getCode();
-}
+
+// int main()
+// {
+//     HuffmanTree<char> s(7);
+//     s.show();
+//     s.getCode();
+// }
