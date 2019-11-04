@@ -236,16 +236,16 @@ class BinaryTree
             }
         }
 };
-int main()
-{
-    BinaryTree<int> tree;
-    //tree.create(-1,-2);
-    int pre[]={0,1,3,5,6,8,7,2,4};
-    int mid[]={8,6,5,7,3,1,0,2,4};
-    tree.create(mid,pre,9);
-    tree.preOrder();
-    tree.midOrder();
-    std::cout<<std::endl;
-    std::cout<<tree.height();
-    return 0;
-}
+// int main()
+// {
+//     BinaryTree<int> tree;
+//     //tree.create(-1,-2);
+//     int pre[]={0,1,3,5,6,8,7,2,4};
+//     int mid[]={8,6,5,7,3,1,0,2,4};
+//     tree.create(mid,pre,9);
+//     tree.preOrder();
+//     tree.midOrder();
+//     std::cout<<std::endl;
+//     std::cout<<tree.height();
+//     return 0;
+// }
