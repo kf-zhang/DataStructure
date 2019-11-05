@@ -1,0 +1,150 @@
+#include<iostream>
+#include"linkStack.cpp"
+#include"error.cpp"
+template<class T>
+class BinarySearchTree
+{
+    private:
+        struct Node
+        {
+            T data;
+            Node *left,*right;
+            Node(const T&x,Node* y=NULL,Node* z=NULL):data(x),left(y),right(z){}
+            Node():left(NULL),right(NULL){}
+        };
+        Node *p;
+    public:
+        BinarySearchTree(){p=NULL;}
+        ~BinarySearchTree()
+        {
+            if(!p) return;
+            linkStack<Node*> s;
+            Node *tmp;
+            s.push(p);
+            while(!s.isEmpty())
+            {
+                tmp=s.pop();
+                if(tmp->right)
+                    s.push(tmp->right);
+                if(tmp->left)
+                    s.push(tmp->left);
+                delete tmp;
+            }
+        }
+        void insert(const T&x)
+        {
+            if(!p){
+                p=new Node(x);
+                return;
+            }
+            Node *parent;
+            Node *tmp=p;
+            while(tmp)
+            {
+                parent=tmp;
+                if(x<=tmp->data)
+                    tmp=tmp->left;
+                else if(x>tmp->data)
+                    tmp=tmp->right;
+                // else    //允许有重复元素，取消此处注释，并且将上面if的小于等于改为小于的则不允许有重复元素
+                //     return;
+            }
+            if(x<=parent->data) //左侧小于等于根
+                parent->left=new Node(x);
+            else
+                parent->right=new Node(x);
+        }
+        void del(const T&x)//删除后还要把对应父节点的指针置为对应子树
+        {
+            Node *pointer=p;
+            Node *tmp;
+            Node *parent=NULL;
+            Node *smallParent=NULL;
+            while(pointer&&pointer->data!=x)
+            {
+                parent=pointer;
+                if(x<pointer->data)
+                    pointer=pointer->left;
+                else 
+                    pointer=pointer->right;
+            }
+            if(!pointer)
+                return;
+            if(!pointer->left&&!pointer->right)
+            {
+                if(parent&&parent->left==pointer)//父节点必须存在
+                    parent->left=NULL;
+                else if (parent&&parent->right==pointer)
+                    parent->right=NULL;
+                if(pointer==p)
+                    p=NULL;
+                delete pointer;//左右子树都为空
+            }
+            if(pointer->right)//右子树非空
+            {
+                for(tmp=pointer->right;tmp->left;smallParent=tmp,tmp=tmp->left);  //
+                pointer->data=tmp->data;
+                if(smallParent)
+                    smallParent->left=tmp->right;//改为右子树而非空
+                else
+                    pointer->right=tmp->right;
+                delete tmp;
+                return;
+            }
+            if(pointer->left)//右子树为空但左子树非空
+            {
+                for(tmp=pointer->left;tmp->right;smallParent=tmp,tmp=tmp->right);
+                pointer->data=tmp->data;
+                if(smallParent)
+                    smallParent->right=tmp->left;//改为左子树而非空
+                else 
+                    pointer->left=tmp->right;
+                delete tmp;
+                return;
+            }
+        }
+        bool isEmpty(){return p;}
+        void traverse()//中序遍历，从小到大输出
+        {
+            if(!p)
+                return;
+            linkStack<Node*>s;
+            Node* pointer=p;
+            s.push(p);
+            while(pointer->left)
+            {
+                s.push(pointer->left);
+                pointer=pointer->left;
+            }
+            while(!s.isEmpty())
+            {
+                pointer=s.pop();
+                std::cout<<pointer->data<<' ';
+                if(pointer->right)
+                {
+                    s.push(pointer->right);
+                    pointer=pointer->right;
+                     while(pointer->left)
+                    {
+                        s.push(pointer->left);
+                        pointer=pointer->left;
+                    }
+                    
+                }
+            }
+            std::cout<<std::endl;   
+        }
+};
+int main()
+{
+    int a[10]={1,5,2,7,97,32,45,1,3,55};
+    BinarySearchTree<int> b;
+    for(int i=0;i<10;++i){
+        b.insert(a[i]);
+        b.traverse();
+    }
+    for(int i=0;i<10;++i){
+        b.del(a[i]);
+        b.traverse();
+    }   
+}
