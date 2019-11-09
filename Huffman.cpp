@@ -1,3 +1,4 @@
+
 #include<iostream>
 #include"linkStack.cpp"
 #include<string>
@@ -45,6 +46,14 @@ class HuffmanTree
                 p[index1].parent=i;
                 p[index2].parent=i;
             }
+        }
+        HuffmanTree(T *pointer,double*pro,int n)
+        {
+            size=n;
+            p=new Node[2*n-1];
+            for(int i=size-1;i<size*2-1;++i)
+                p[i]=Node(pointer[i-size+1],pro[i-size+1]);
+            buildTree();
         }
         HuffmanTree(int n)   //n为需要编码的数量
         {
@@ -94,11 +103,42 @@ class HuffmanTree
                 getCode(CODE,p[node].right,last+1);
             }
         }
+        double WPL()
+        {
+            if(!size)
+                return 0;
+            double result=0;
+            linkStack<int> nS;
+            int index;
+            nS.push(0);
+            while(!nS.isEmpty())
+            {
+                index=nS.pop();
+                if(p[index].right!=-1)
+                    nS.push(p[index].right);
+                if(p[index].left!=-1)
+                    nS.push(p[index].left);
+                if(p[index].right!=-1&&p[index].left!=-1)
+                    result+=p[index].pro;
+            }
+            return result;
+        }
 };
-
 // int main()
 // {
-//     HuffmanTree<char> s(7);
-//     s.show();
-//     s.getCode();
+//     int n;
+//     char *pointer;
+//     double *weight;
+//     std::cin>>n;
+//     pointer=new char[n];
+//     weight=new double[n];
+//     for(int i=0;i<n;++i){
+//         std::cin>>weight[i];
+//     }
+//     HuffmanTree<char> s(pointer,weight,n);
+//     std::cout<<int(s.WPL());
+//     delete [] pointer;
+//     delete [] weight;
+//     return 0;
+
 // }
