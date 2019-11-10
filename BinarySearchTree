@@ -2,6 +2,21 @@
 #include"linkStack.cpp"
 #include"error.cpp"
 template<class T>
+bool Between(T x,T value,T y)
+{
+    return value>=x&&value<=y;
+}
+template<class T>
+bool Smaller(T x,T value,T y)
+{
+    return value<x;
+}
+template<class T>
+bool Greater(T x,T value,T y)
+{
+    return value>x;
+}
+template<class T>
 class BinarySearchTree
 {
     private:
@@ -54,35 +69,27 @@ class BinarySearchTree
             else
                 parent->right=new Node(x);
         }
-        void del(const T&x)//删除后还要把对应父节点的指针置为对应子树
+        void del(Node *pointer,Node *parent)
         {
-            Node *pointer=p;
             Node *tmp;
-            Node *parent=NULL;
             Node *smallParent=NULL;
-            while(pointer&&pointer->data!=x)
-            {
-                parent=pointer;
-                if(x<pointer->data)
-                    pointer=pointer->left;
-                else 
-                    pointer=pointer->right;
-            }
             if(!pointer)
                 return;
+            //std::cout<<"deleting"<<pointer->data;
             if(!pointer->left&&!pointer->right)
             {
-                if(parent&&parent->left==pointer)//父节点必须存在
+                if(parent&&parent->left==pointer)
                     parent->left=NULL;
-                else if (parent&&parent->right==pointer)
+                else if(parent&&parent->right==pointer)
                     parent->right=NULL;
                 if(pointer==p)
                     p=NULL;
-                delete pointer;//左右子树都为空
-            }
-            if(pointer->right)//右子树非空
+                //std::cout<<"eeeee"<<pointer->data;
+                delete pointer;
+            }//一定要加else if否则pointer会指向莫名的空间
+            else if(pointer->right)//右子树非空
             {
-                for(tmp=pointer->right;tmp->left;smallParent=tmp,tmp=tmp->left);  //
+                for(tmp=pointer->right;tmp->left;smallParent=tmp,tmp=tmp->left);  
                 pointer->data=tmp->data;
                 if(smallParent)
                     smallParent->left=tmp->right;//改为右子树而非空
@@ -91,7 +98,7 @@ class BinarySearchTree
                 delete tmp;
                 return;
             }
-            if(pointer->left)//右子树为空但左子树非空
+            else if(pointer->left)//右子树为空但左子树非空
             {
                 for(tmp=pointer->left;tmp->right;smallParent=tmp,tmp=tmp->right);
                 pointer->data=tmp->data;
@@ -103,7 +110,21 @@ class BinarySearchTree
                 return;
             }
         }
-        bool isEmpty(){return p;}
+        void del(const T&x)//删除后还要把对应父节点的指针置为对应子树
+        {
+            Node *pointer=p;
+            Node *parent=NULL;
+            while(pointer&&pointer->data!=x)
+            {
+                parent=pointer;
+                if(x<pointer->data)
+                    pointer=pointer->left;
+                else 
+                    pointer=pointer->right;
+            }
+            del(pointer,parent);
+        }
+        bool isEmpty(){return !p;}
         void traverse()//中序遍历，从小到大输出
         {
             if(!p)
@@ -134,17 +155,87 @@ class BinarySearchTree
             }
             std::cout<<std::endl;   
         }
+        void delFunction(T x,T y,bool (*f)(T,T,T))//删除查找树上在xy之间的节点 如果
+        //通过遍历删除的话只能从叶节点开始删，否则stack里面的指针指向的data会改变，血与泪的教训
+        {
+            if(!p)
+                return;
+            if(x>y)
+            {
+                T tmp=x;
+                x=y;
+                y=tmp;
+            }
+            linkStack<Node*> traverseStack;
+            linkStack<Node*> parentStack;
+            linkStack<int> timeStack;
+            Node *pointer=p;
+            Node *parent=NULL;
+            int time=0;
+            int zero=0;
+            traverseStack.push(p);
+            parentStack.push(NULL);
+            timeStack.push(time);
+            while(!traverseStack.isEmpty())
+            {
+                pointer=traverseStack.pop();
+                parent=parentStack.pop();
+                time=timeStack.pop()+1;
+                if(time==3)
+                {
+                    if(f(x,pointer->data,y)){
+                        std::cout<<"delete"<<pointer->data<<' ';
+                        del(pointer,parent);
+                    }  
+                }
+                else if(time==2)
+                {
+                    traverseStack.push(pointer);
+                    parentStack.push(parent);
+                    timeStack.push(time);
+                    if(pointer->right)
+                    {
+                        traverseStack.push(pointer->right);
+                        parentStack.push(pointer);
+                        timeStack.push(zero);
+                    }
+
+                }
+                else if(time==1)
+                {
+                    traverseStack.push(pointer);
+                    parentStack.push(parent);
+                    timeStack.push(time);
+                    if(pointer->left)
+                    {
+                        traverseStack.push(pointer->left);
+                        parentStack.push(pointer);
+                        timeStack.push(zero);
+                    }
+
+                }
+            }
+        }
+        void delBetween(T x,T y)   {    delFunction(x,y,Between<T>);   }
+        void delGreater(T x)       {    delFunction(x,x,Greater<T>);   }
+        void delSmaller(T x)       {    delFunction(x,x,Smaller<T>);   }
+        
 };
 int main()
 {
     int a[10]={1,5,2,7,97,32,45,1,3,55};
+    int j[]={3,2,6,0,1,1,0};
     BinarySearchTree<int> b;
     for(int i=0;i<10;++i){
         b.insert(a[i]);
         b.traverse();
     }
-    for(int i=0;i<10;++i){
-        b.del(a[i]);
-        b.traverse();
-    }   
+    b.delGreater(30);
+    b.traverse(); 
+    // b.delSmaller(80);
+    b.traverse();
+    std::cout<<(b.isEmpty()?"yes":"No");
+    // b.delBetween(30,50);
+    // b.traverse();
+    return 0;
 }
