@@ -184,7 +184,7 @@ class BinarySearchTree
                 if(time==3)
                 {
                     if(f(x,pointer->data,y)){
-                        std::cout<<"delete"<<pointer->data<<' ';
+                        //std::cout<<"delete"<<pointer->data<<' ';
                         del(pointer,parent);
                     }  
                 }
