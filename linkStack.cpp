@@ -33,8 +33,10 @@ class linkStack
         {
             if(top)
             {
+                Node*tmp=top;
                 T x=top->data;
                 top=top->next;
+                delete tmp;
                 return x;
             }
             throw error("stack pop error");
